@@ -40,12 +40,8 @@ class BaseUrlHttpClient implements HttpClientInterface
         UriFactoryInterface $uriFactory = null,
         RequestFactoryInterface $requestFactory = null
     ) {
-        if (!$baseUrl instanceof BaseUriFactory) {
-            $baseUrl = new BaseUriFactory($baseUrl, $uriFactory);
-        }
-
         $this->client         = $client ?? Psr18ClientDiscovery::find();
-        $this->requestFactory = new BaseUrlRequestFactory($baseUrl, $requestFactory);
+        $this->requestFactory = new BaseUrlRequestFactory($baseUrl, $requestFactory, $uriFactory);
     }
 
     /**
