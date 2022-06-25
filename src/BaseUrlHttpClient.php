@@ -48,7 +48,15 @@ class BaseUrlHttpClient implements HttpClientInterface
         $this->requestFactory = new BaseUrlRequestFactory($baseUrl, $requestFactory);
     }
 
+    /**
+     * @deprecated use getBaseUrlRequestFactory instead
+     */
     public function getRequestFactory(): RequestFactoryInterface
+    {
+        return $this->getBaseUrlRequestFactory();
+    }
+
+    public function getBaseUrlRequestFactory(): BaseUrlRequestFactory
     {
         return $this->requestFactory;
     }

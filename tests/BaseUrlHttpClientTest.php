@@ -95,14 +95,19 @@ final class BaseUrlHttpClientTest extends TestCase
 
     /**
      * @covers ::__construct
+     * @covers ::getBaseUrlRequestFactory
      * @covers ::getRequestFactory
      */
-    public function testGetRequestFactoryWillReturnBaseUrlRequestFactoryWithGivenBaseUriFactory(): void
+    public function testGetBaseUrlRequestFactoryWillReturnBaseUrlRequestFactoryWithGivenBaseUriFactory(): void
     {
-        $requestFactory = $this->baseUrlHttpClient->getRequestFactory();
+        $requestFactory = $this->baseUrlHttpClient->getBaseUrlRequestFactory();
 
         parent::assertInstanceOf(BaseUrlRequestFactory::class, $requestFactory);
         parent::assertSame($this->baseUriFactory->reveal(), $requestFactory->getBaseUriFactory());
+        parent::assertSame(
+            $requestFactory->getBaseUriFactory(),
+            $this->baseUrlHttpClient->getRequestFactory()->getBaseUriFactory()
+        );
     }
 
     /**
