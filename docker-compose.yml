@@ -1,0 +1,23 @@
+services:
+  php74:
+    image: coisa/http-client:7.4-alpine
+    build:
+      context: .
+      args:
+        PHP_VERSION: 7.4
+    volumes:
+      - .:/usr/local/src:Z
+
+  php80:
+    image: coisa/http-client:8.0-alpine
+    build:
+      context: .
+      args:
+        PHP_VERSION: 8.0
+
+  php81:
+    image: coisa/http-client:8.1-alpine
+    build:
+      context: .
+      args:
+        PHP_VERSION: 8.1

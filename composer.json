@@ -1,0 +1,63 @@
+{
+    "name": "coisa/http-client",
+    "type": "library",
+    "description": "PSR-18 Http Client Utility",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Felipe Sayão Lobato Abreu",
+            "email": "github@mentor.dev.br"
+        }
+    ],
+    "require": {
+        "php": "^7.4 || ^8.0",
+        "coisa/http-factory": "^1.2",
+        "fig/http-message-util": "^1.1",
+        "php-http/discovery": "^1.14",
+        "psr/http-client": "^1.0",
+        "psr/http-factory": "^1.0",
+        "psr/http-message": "^1.0"
+    },
+    "require-dev": {
+        "coisa/php-cs-fixer": "^2.1",
+        "laminas/laminas-diactoros": "^2.11",
+        "php-parallel-lint/php-console-highlighter": "^1.0",
+        "php-parallel-lint/php-parallel-lint": "^1.3",
+        "phpspec/prophecy-phpunit": "^2.0",
+        "phpunit/phpunit": "^9.5",
+        "sensiolabs/security-checker": "^6.0",
+        "squizlabs/php_codesniffer": "^3.6",
+        "symfony/var-dumper": "^5.4"
+    },
+    "config": {
+        "platform": {
+            "php": "7.4"
+        },
+        "prefer-stable": true,
+        "sort-packages": true
+    },
+    "autoload": {
+        "psr-4": {
+            "CoiSA\\Http\\Client\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "CoiSA\\Http\\Client\\": "tests"
+        }
+    },
+    "minimum-stability": "stable",
+    "scripts": {
+        "check": [
+            "@lint",
+            "@test",
+            "@sniff",
+            "@cs-check"
+        ],
+        "cs-check": "php-cs-fixer fix --dry-run --diff",
+        "cs-fix": "php-cs-fixer fix",
+        "lint": "parallel-lint --exclude vendor .",
+        "sniff": "phpcs",
+        "test": "phpunit --testdox"
+    }
+}
