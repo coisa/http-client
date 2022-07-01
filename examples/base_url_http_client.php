@@ -14,10 +14,14 @@ declare(strict_types=1);
  */
 
 use CoiSA\Http\Client\BaseUrlHttpClient;
+use CoiSA\Logger\LoggerFactory;
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
 $baseUriClient = new BaseUrlHttpClient('https://httpbin.org/');
+
+$logger = LoggerFactory::createLogger();
+$baseUriClient->setLogger($logger);
 
 $request  = $baseUriClient->createRequest('GET', '/get?test=123');
 $response = $baseUriClient->sendRequest($request);
