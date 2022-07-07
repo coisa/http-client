@@ -3,7 +3,7 @@ name: Validate
 on: [push]
 
 jobs:
-  build-test:
+  code-coverage:
     strategy:
       matrix:
         php-version: ['7.4', '8.0', '8.1']
@@ -12,6 +12,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v2
+        with:
+          path: /tmp/composer-cache
+          key: ${{ runner.os }}-${{ matrix.php-versions }}-composer${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-${{ matrix.php-versions }}-composer
+
+      - name: Install dependencies
+        uses: php-actions/composer@v6
 
       - name: PHPUnit
         uses: php-actions/composer@v6
