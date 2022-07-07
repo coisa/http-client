@@ -1,0 +1,26 @@
+name: Validate
+
+on: [push]
+
+jobs:
+  build-test:
+    strategy:
+        matrix:
+          php-version: ['7.4', '8.0', '8.1']
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Validate composer dependencies
+        uses: php-actions/composer@v6
+        with:
+          php_version: ${{ matrix.php-version }}
+          command: validate
+
+      - name: PHP Lint
+        uses: php-actions/composer@v6
+        with:
+          php_version: ${{ matrix.php-version }}
+          command: lint
