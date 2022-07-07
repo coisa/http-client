@@ -1,0 +1,23 @@
+name: Test
+on: [push]
+jobs:
+  test:
+    needs: build
+
+    strategy:
+      matrix:
+        php-version: ['7.4', '8.0', '8.1']
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: PHPUnit
+        uses: php-actions/composer@v6
+        with:
+          php_version: ${{ matrix.php-version }}
+          command: test
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: coverage-report
+          path: coverage
