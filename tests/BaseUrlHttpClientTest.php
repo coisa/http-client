@@ -27,6 +27,7 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Message\UriInterface;
+use Psr\Http\Message\StreamInterface;
 
 /**
  * @internal
@@ -50,6 +51,8 @@ final class BaseUrlHttpClientTest extends TestCase
 
     private ObjectProphecy $uri;
 
+    private ObjectProphecy $body;
+
     private BaseUrlHttpClient $baseUrlHttpClient;
 
     protected function setUp(): void
@@ -61,8 +64,10 @@ final class BaseUrlHttpClientTest extends TestCase
         $this->request        = $this->prophesize(RequestInterface::class);
         $this->response       = $this->prophesize(ResponseInterface::class);
         $this->uri            = $this->prophesize(UriInterface::class);
+        $this->body = $this->prophesize(StreamInterface::class);
 
         $this->baseUriFactory->createUri(Argument::type('string'))->willReturn($this->uri->reveal());
+        $this->response->getBody()->willReturn($this->body->reveal());
 
         $this->baseUrlHttpClient = new BaseUrlHttpClient(
             $this->baseUriFactory->reveal(),
@@ -125,8 +130,8 @@ final class BaseUrlHttpClientTest extends TestCase
         ;
 
         $this->baseUrlHttpClient->createRequest($method, $uri);
-    }
 
+    }
     /**
      * @covers ::__construct
      * @covers ::sendRequest
@@ -135,10 +140,13 @@ final class BaseUrlHttpClientTest extends TestCase
     {
         $uri = uniqid('uri');
 
-        $this->uri->__toString()->willReturn($uri)->shouldBeCalledOnce();
-        $this->request->getUri()->willReturn($this->uri->reveal())->shouldBeCalledOnce();
+        $this->uri->__toString()->willReturn($uri)->shouldBeCalled();
+        $this->request->getUri()->willReturn($this->uri->reveal())->shouldBeCalled();
         $this->baseUriFactory->createUri($uri)->willReturn($this->uri->reveal())->shouldBeCalledOnce();
         $this->request->withUri($this->uri->reveal())->willReturn($this->request->reveal())->shouldBeCalledOnce();
+        $this->request->getMethod()->willReturn('GET');
+        $this->request->getProtocolVersion()->willReturn('1.0');
+        $this->response->getStatusCode()->willReturn(200);
         $this->client->sendRequest($this->request->reveal())
             ->willReturn($this->response->reveal())
             ->shouldBeCalledOnce()
