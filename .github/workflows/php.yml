@@ -1,5 +1,10 @@
 name: PHP
-on: push
+env:
+  GITHUB_PAGES_BRANCH: coverage-report
+on:
+  push:
+    branches-ignore:
+      - $GITHUB_PAGES_BRANCH
 jobs:
   build:
     strategy:
@@ -52,7 +57,41 @@ jobs:
       - name: PHPUnit
         run: composer --working-dir=/usr/local/src run-script test
 
-      - uses: actions/upload-artifact@v2
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v2
         with:
           name: coverage-report
           path: coverage
+
+  deploy:
+    needs: tests
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download Coverage Report
+        uses: actions/download-artifact@v3
+        with:
+          name: coverage-report
+
+      - name: Deploy GitHub Pages
+        run: |
+          git checkout -b "$GITHUB_PAGES_BRANCH"
+
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          mv html/ docs/
+          mv docs/_css/ docs/css/
+          mv docs/_icons/ docs/icons/
+          mv docs/_js/ docs/js/
+
+          sed -i "s|_css|css|g" docs/*.html docs/**/*.html
+          sed -i "s|_icons|icons|g" docs/*.html docs/**/*.html
+          sed -i "s|_js|js|g" docs/*.html docs/**/*.html
+
+          git update-ref -d HEAD
+          git add docs/
+          git commit -m "[Automation] Coverage Report ${GITHUB_RUN_NUMBER}"
+
+          git push -f -u origin "$GITHUB_PAGES_BRANCH"
