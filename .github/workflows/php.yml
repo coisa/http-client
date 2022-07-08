@@ -44,7 +44,7 @@ jobs:
         run: composer --working-dir=/usr/local/src run-script lint
 
   tests:
-    needs: analyse
+    needs: build
 
     strategy:
       matrix:
@@ -76,9 +76,14 @@ jobs:
 
       - name: Deploy GitHub Pages
         run: |
+          ls -lash
+          pwd
+          ls -lash /usr/local/src
+
+          git config --global init.defaultBranch "$GITHUB_PAGES_BRANCH"
+
           git init
           git remote add origin ${{ github.repositoryUrl }}
-          git checkout -b "$GITHUB_PAGES_BRANCH"
 
           git config --global user.name "GitHub Actions"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
