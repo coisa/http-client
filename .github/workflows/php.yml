@@ -33,7 +33,7 @@ jobs:
 
     steps:
       - name: Test
-        run: ls -lash; cat composer.json
+        run: ls -lash; pwd; ls -lash /usr/local/src
 
       - name: PHPStan
         run: composer run-script analyse
