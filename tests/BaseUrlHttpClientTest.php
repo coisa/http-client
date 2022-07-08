@@ -25,9 +25,9 @@ use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Message\UriInterface;
-use Psr\Http\Message\StreamInterface;
 
 /**
  * @internal
@@ -37,20 +37,28 @@ final class BaseUrlHttpClientTest extends TestCase
 {
     use ProphecyTrait;
 
+    /** @var ObjectProphecy<ClientInterface> */
     private ObjectProphecy $client;
 
+    /** @var ObjectProphecy<BaseUriFactory> */
     private ObjectProphecy $baseUriFactory;
 
+    /** @var ObjectProphecy<UriFactoryInterface> */
     private ObjectProphecy $uriFactory;
 
+    /** @var ObjectProphecy<RequestFactoryInterface> */
     private ObjectProphecy $requestFactory;
 
+    /** @var ObjectProphecy<RequestInterface> */
     private ObjectProphecy $request;
 
+    /** @var ObjectProphecy<ResponseInterface> */
     private ObjectProphecy $response;
 
+    /** @var ObjectProphecy<UriInterface> */
     private ObjectProphecy $uri;
 
+    /** @var ObjectProphecy<StreamInterface> */
     private ObjectProphecy $body;
 
     private BaseUrlHttpClient $baseUrlHttpClient;
@@ -64,7 +72,7 @@ final class BaseUrlHttpClientTest extends TestCase
         $this->request        = $this->prophesize(RequestInterface::class);
         $this->response       = $this->prophesize(ResponseInterface::class);
         $this->uri            = $this->prophesize(UriInterface::class);
-        $this->body = $this->prophesize(StreamInterface::class);
+        $this->body           = $this->prophesize(StreamInterface::class);
 
         $this->baseUriFactory->createUri(Argument::type('string'))->willReturn($this->uri->reveal());
         $this->response->getBody()->willReturn($this->body->reveal());
@@ -130,8 +138,8 @@ final class BaseUrlHttpClientTest extends TestCase
         ;
 
         $this->baseUrlHttpClient->createRequest($method, $uri);
-
     }
+
     /**
      * @covers ::__construct
      * @covers ::sendRequest
