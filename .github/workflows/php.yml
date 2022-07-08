@@ -32,14 +32,11 @@ jobs:
     container: ghcr.io/${{ github.repository }}:${{ matrix.php-version }}-${{ github.ref_name }}
 
     steps:
-      - name: Test
-        run: ls -lash; pwd; ls -lash /usr/local/src
-
       - name: PHPStan
-        run: composer run-script analyse
+        run: composer --working-dir=/usr/local/src run-script analyse
 
       - name: PHP Lint
-        run: composer run-script lint
+        run: composer --working-dir=/usr/local/src run-script lint
 
   tests:
     needs: analyse
@@ -53,7 +50,7 @@ jobs:
 
     steps:
       - name: PHPUnit
-        run: composer test
+        run: composer --working-dir=/usr/local/src run-script test
 
       - uses: actions/upload-artifact@v2
         with:
