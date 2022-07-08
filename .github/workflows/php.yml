@@ -9,9 +9,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - &checkout
-        name: Checkout
-        uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v3
 
       - name: Validate composer.json
         uses: php-actions/composer@v6
@@ -19,16 +18,14 @@ jobs:
           php_version: ${{ matrix.php-version }}
           command: validate
 
-      - &composer-cache
-        name: Cache Composer dependencies
+      - name: Cache Composer dependencies
         uses: actions/cache@v3
         with:
           path: /tmp/composer-cache
           key: ${{ runner.os }}-${{ matrix.php-version }}-composer${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-${{ matrix.php-version }}-composer
 
-      - &composer-install
-        name: Install composer dependencies
+      - name: Install composer dependencies
         uses: php-actions/composer@v6
         with:
           php_version: ${{ matrix.php-version }}
@@ -48,17 +45,30 @@ jobs:
   tests:
     strategy:
       matrix:
-        php-versions: ['7.4', '8.0', '8.1']
+        php-version: ['7.4', '8.0', '8.1']
 
     runs-on: ubuntu-latest
 
     steps:
-      - <<: *checkout
-      - <<: *composer-cache
-      - <<: *composer-install
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: /tmp/composer-cache
+          key: ${{ runner.os }}-${{ matrix.php-version }}-composer${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-${{ matrix.php-version }}-composer
+
+      - name: Install composer dependencies
+        uses: php-actions/composer@v6
+        with:
+          php_version: ${{ matrix.php-version }}
 
       - name: PHPUnit test case
         run: composer test
+        with:
+          php_version: ${{ matrix.php-version }}
 
       - uses: actions/upload-artifact@v2
         with:
