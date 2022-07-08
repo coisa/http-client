@@ -15,7 +15,7 @@ jobs:
       - name: Docker Build & Push
         uses: elgohr/Publish-Docker-Github-Action@v4
         with:
-          name: ${{ github.repository }}:${{ github.ref_name }}
+          name: ${{ github.repository }}:${{ matrix.php-version }}-${{ github.ref_name }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: ghcr.io
