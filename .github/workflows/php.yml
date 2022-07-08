@@ -66,9 +66,11 @@ jobs:
           php_version: ${{ matrix.php-version }}
 
       - name: PHPUnit test case
-        run: composer test
+        uses: php-actions/composer@v6
         with:
           php_version: ${{ matrix.php-version }}
+          memory_limit: -1
+          command: test
 
       - uses: actions/upload-artifact@v2
         with:
