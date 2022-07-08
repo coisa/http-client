@@ -76,6 +76,8 @@ jobs:
 
       - name: Deploy GitHub Pages
         run: |
+          git init
+          git remote add origin ${{ github.repositoryUrl }}
           git checkout -b "$GITHUB_PAGES_BRANCH"
 
           git config --global user.name "GitHub Actions"
