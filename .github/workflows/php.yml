@@ -32,11 +32,14 @@ jobs:
     container: ghcr.io/${{ github.repository }}:${{ matrix.php-version }}-${{ github.ref_name }}
 
     steps:
-      - name: PHP Lint
-        run: composer lint
+      - name: Test
+        run: ls -lash; cat composer.json
 
       - name: PHPStan
-        run: composer analyse
+        run: composer run-script analyse
+
+      - name: PHP Lint
+        run: composer run-script lint
 
   tests:
     needs: analyse
