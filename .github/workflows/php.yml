@@ -53,9 +53,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - *checkout
-      - *composer-cache
-      - *composer-install
+      - <<: *checkout
+      - <<: *composer-cache
+      - <<: *composer-install
 
       - name: PHPUnit test case
         run: composer test
