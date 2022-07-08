@@ -22,75 +22,35 @@ jobs:
           buildargs: PHP_VERSION=${{ matrix.php-version }}
 
   analyse:
+    needs: build
+
     strategy:
       matrix:
         php-version: [ '7.4', '8.0', '8.1' ]
 
     runs-on: ubuntu-latest
+    container: ${{ github.repository }}:${{ matrix.php-version }}-${{ github.ref_name }}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Validate composer.json
-        uses: php-actions/composer@v6
-        with:
-          php_version: ${{ matrix.php-version }}
-          command: validate
-
-      - name: Cache Composer dependencies
-        uses: actions/cache@v3
-        with:
-          path: /tmp/composer-cache
-          key: ${{ runner.os }}-${{ matrix.php-version }}-composer${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-${{ matrix.php-version }}-composer
-
-      - name: Install composer dependencies
-        uses: php-actions/composer@v6
-        with:
-          php_version: ${{ matrix.php-version }}
-
       - name: PHP Lint
-        uses: php-actions/composer@v6
-        with:
-          php_version: ${{ matrix.php-version }}
-          command: lint
+        run: composer lint
 
       - name: PHPStan
-        uses: php-actions/composer@v6
-        with:
-          php_version: ${{ matrix.php-version }}
-          command: analyse
+        run: composer analyse
 
   tests:
+    needs: build
+
     strategy:
       matrix:
         php-version: ['7.4', '8.0', '8.1']
 
     runs-on: ubuntu-latest
+    container: ${{ github.repository }}:${{ matrix.php-version }}-${{ github.ref_name }}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Cache Composer dependencies
-        uses: actions/cache@v3
-        with:
-          path: /tmp/composer-cache
-          key: ${{ runner.os }}-${{ matrix.php-version }}-composer${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-${{ matrix.php-version }}-composer
-
-      - name: Install composer dependencies
-        uses: php-actions/composer@v6
-        with:
-          php_version: ${{ matrix.php-version }}
-
-      - name: PHPUnit test case
-        uses: php-actions/composer@v6
-        with:
-          php_version: ${{ matrix.php-version }}
-          memory_limit: -1
-          command: test
+      - name: PHPUnit
+        run: composer test
 
       - uses: actions/upload-artifact@v2
         with:
