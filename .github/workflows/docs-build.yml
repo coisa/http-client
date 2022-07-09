@@ -1,6 +1,7 @@
 name: docs-build
 
 on:
+  pull_request:
   release:
     types: [published]
   repository_dispatch:
