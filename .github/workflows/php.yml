@@ -76,24 +76,25 @@ jobs:
 
       - name: Deploy GitHub Pages
         run: |
+          cd html/
+          
+          mv -v _css/ css/
+          mv -v _icons/ icons/
+          mv -v _js/ js/
+
+          find . -iname "*.html" -exec sed -i "s|_css|css|g" {} \;
+          find . -iname "*.html" -exec sed -i "s|_icons|icons|g" {} \;
+          find . -iname "*.html" -exec sed -i "s|_js|js|g" {} \;
+
           git config --global init.defaultBranch "$GITHUB_PAGES_BRANCH"
 
           git init
-          git remote add origin ${{ github.repositoryUrl }}
+          git remote add origin "https://${{ secrets.GITHUB_TOKEN}}@github.com/${{ github.repository }}.git"
 
           git config --global user.name "GitHub Actions"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          mv -v html/ docs/
-          mv -v docs/_css/ docs/css/
-          mv -v docs/_icons/ docs/icons/
-          mv -v docs/_js/ docs/js/
-
-          find docs -iname "*.html" -exec sed -i "s|_css|css|g" {} \;
-          find docs -iname "*.html" -exec sed -i "s|_icons|icons|g" {} \;
-          find docs -iname "*.html" -exec sed -i "s|_js|js|g" {} \;
-
-          git add docs/
+          git add -A
           git commit -m "[Automation] Coverage Report ${GITHUB_RUN_NUMBER}"
 
           git push -f -u origin "$GITHUB_PAGES_BRANCH"
