@@ -10,7 +10,3 @@ jobs:
     steps:
       - name: Docs
         uses: laminas/documentation-theme/github-actions/docs@master
-        with:
-          username: "github-actions[bot]"
-          useremail: "41898282+github-actions[bot]@users.noreply.github.com"
-          siteUrl: https://coisa.github.io/http-client/
