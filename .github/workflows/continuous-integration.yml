@@ -7,5 +7,5 @@ on:
     tags:
 
 jobs:
-  ci:
+  laminas-ci:
     uses: laminas/workflow-continuous-integration/.github/workflows/continuous-integration.yml@1.x
