@@ -21,7 +21,7 @@ jobs:
         env:
           IMAGE: ghcr.io/${{ github.repository }}:${{ matrix.php-version }}-${{ github.ref_name }}
         run: |
-          docker build --pull --build-arg PHP_VERSION=${{ matrix.php-version }} --tag $IMAGE
+          docker build --pull --build-arg PHP_VERSION=${{ matrix.php-version }} --tag $IMAGE .
           docker push $IMAGE
 
   analyse:
