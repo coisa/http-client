@@ -33,6 +33,9 @@ class BaseUrlHttpClient implements HttpClientInterface, LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
+    /** @var LoggerInterface */
+    protected $logger;
+
     private ClientInterface $client;
 
     private BaseUrlRequestFactory $requestFactory;
@@ -55,7 +58,7 @@ class BaseUrlHttpClient implements HttpClientInterface, LoggerAwareInterface
     /**
      * @deprecated use getBaseUrlRequestFactory instead
      */
-    public function getRequestFactory(): RequestFactoryInterface
+    public function getRequestFactory(): BaseUrlRequestFactory
     {
         return $this->getBaseUrlRequestFactory();
     }

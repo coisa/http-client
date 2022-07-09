@@ -1,40 +1,108 @@
 name: PHP
-on: push
+env:
+  GITHUB_PAGES_BRANCH: coverage-report
+on:
+  push:
+    branches-ignore:
+      - $GITHUB_PAGES_BRANCH
 jobs:
-  tests:
+  build:
     strategy:
       matrix:
-        operating-system: [ubuntu-latest]
-        php-versions: ['7.4', '8.0', '8.1']
-    runs-on: ${{ matrix.operating-system }}
+        php-version: [ '7.4', '8.0', '8.1' ]
+
+    runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
         with:
-          php-version: ${{ matrix.php-versions }}
-          coverage: xdebug
-          ini-values: memory_limit=-1
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Validate composer.json and composer.lock
-        run: composer validate
+      - name: Docker Build & Push
+        env:
+          IMAGE: ghcr.io/${{ github.repository }}:${{ matrix.php-version }}-${{ github.ref_name }}
+        run: |
+          docker pull $IMAGE || :
+          docker build --pull --cache-from="$IMAGE" --build-arg PHP_VERSION=${{ matrix.php-version }} --tag $IMAGE .
+          docker push $IMAGE
 
-      - name: Get composer cache directory
-        id: composercache
-        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+  analyse:
+    needs: build
 
-      - name: Cache composer dependencies
-        id: composer-cache
-        uses: actions/cache@v2
+    strategy:
+      matrix:
+        php-version: [ '7.4', '8.0', '8.1' ]
+
+    runs-on: ubuntu-latest
+    container: ghcr.io/${{ github.repository }}:${{ matrix.php-version }}-${{ github.ref_name }}
+
+    steps:
+      - name: PHPStan
+        run: composer --working-dir=/usr/local/src run-script analyse
+
+      - name: PHP Lint
+        run: composer --working-dir=/usr/local/src run-script lint
+
+  tests:
+    needs: build
+
+    strategy:
+      matrix:
+        php-version: ['7.4', '8.0', '8.1']
+
+    runs-on: ubuntu-latest
+    container: ghcr.io/${{ github.repository }}:${{ matrix.php-version }}-${{ github.ref_name }}
+
+    steps:
+      - name: PHPUnit
+        run: composer --working-dir=/usr/local/src run-script test
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v2
         with:
-          path: ${{ steps.composercache.outputs.dir }}
-          key: ${{ matrix.php-versions }}-composer-${{ hashFiles('**/composer.json') }}
-          restore-keys: ${{ matrix.php-versions }}-composer-
+          name: coverage-report
+          path: /usr/local/src/coverage
 
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest
+  deploy:
+    needs: tests
 
-      - name: Run test suite
-        run: composer run-script test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Download Coverage Report
+        uses: actions/download-artifact@v3
+        with:
+          name: coverage-report
+
+      - name: Deploy GitHub Pages
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git checkout --orphan $GITHUB_PAGES_BRANCH
+          git rm -rf .
+
+          mv html/* .
+          rmdir html
+
+          mv -v _css/ css/
+          mv -v _icons/ icons/
+          mv -v _js/ js/
+
+          find . -iname "*.html" -exec sed -i "s|_css|css|g" {} \;
+          find . -iname "*.html" -exec sed -i "s|_icons|icons|g" {} \;
+          find . -iname "*.html" -exec sed -i "s|_js|js|g" {} \;
+
+          git add -A
+          git commit -m "[Automation] Coverage Report ${GITHUB_RUN_NUMBER}"
+
+          git push -f -u origin "$GITHUB_PAGES_BRANCH"

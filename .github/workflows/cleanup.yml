@@ -1,0 +1,12 @@
+name: Cleanup
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  delete-package-versions:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/delete-package-versions@v3
