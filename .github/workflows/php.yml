@@ -93,7 +93,6 @@ jobs:
           find docs -iname "*.html" -exec sed -i "s|_icons|icons|g" {} \;
           find docs -iname "*.html" -exec sed -i "s|_js|js|g" {} \;
 
-          git update-ref -d HEAD
           git add docs/
           git commit -m "[Automation] Coverage Report ${GITHUB_RUN_NUMBER}"
 
