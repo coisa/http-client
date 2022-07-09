@@ -77,7 +77,7 @@ jobs:
       - name: Deploy GitHub Pages
         run: |
           cd html/
-          
+
           mv -v _css/ css/
           mv -v _icons/ icons/
           mv -v _js/ js/
@@ -89,7 +89,7 @@ jobs:
           git config --global init.defaultBranch "$GITHUB_PAGES_BRANCH"
 
           git init
-          git remote add origin "https://${{ secrets.GITHUB_TOKEN}}@github.com/${{ github.repository }}.git"
+          git remote add origin "https://${{ github.token }}@github.com/${{ github.repository }}.git"
 
           git config --global user.name "GitHub Actions"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
