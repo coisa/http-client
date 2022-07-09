@@ -1,7 +1,7 @@
 name: docs-build
 
 on:
-  pull_request:
+  push:
   release:
     types: [published]
   repository_dispatch:
