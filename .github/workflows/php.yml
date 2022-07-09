@@ -32,15 +32,6 @@ jobs:
           docker build --pull --cache-from="$IMAGE" --build-arg PHP_VERSION=${{ matrix.php-version }} --tag $IMAGE .
           docker push $IMAGE
 
-#      - name: Docker Build & Push
-#        uses: elgohr/Publish-Docker-Github-Action@v4
-#        with:
-#          name: ${{ github.repository }}:${{ matrix.php-version }}-${{ github.ref_name }}
-#          username: ${{ github.actor }}
-#          password: ${{ secrets.GITHUB_TOKEN }}
-#          registry: ghcr.io
-#          buildargs: PHP_VERSION=${{ matrix.php-version }}
-
   analyse:
     needs: build
 
