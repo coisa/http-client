@@ -17,17 +17,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Cache warmup
-        run: docker pull ghcr.io/${{ github.repository }}:${{ matrix.php-version }}-${{ github.ref_name }}
-
       - name: Docker Build & Push
-        uses: elgohr/Publish-Docker-Github-Action@v4
-        with:
-          name: ${{ github.repository }}:${{ matrix.php-version }}-${{ github.ref_name }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-          registry: ghcr.io
-          buildargs: PHP_VERSION=${{ matrix.php-version }}
+        env:
+          IMAGE: ghcr.io/${{ github.repository }}:${{ matrix.php-version }}-${{ github.ref_name }}
+        run: |
+          docker build --pull --build-arg PHP_VERSION=${{ matrix.php-version }} --tag $IMAGE
+          docker push $IMAGE
 
   analyse:
     needs: build
