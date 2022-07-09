@@ -17,6 +17,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Cache warmup
+        run: docker pull ghcr.io/${{ github.repository }}:${{ matrix.php-version }}-${{ github.ref_name }}
+
       - name: Docker Build & Push
         uses: elgohr/Publish-Docker-Github-Action@v4
         with:
@@ -85,7 +88,8 @@ jobs:
           git checkout --orphan $GITHUB_PAGES_BRANCH
           git rm -rf .
 
-          mv html/ .
+          mv html/* .
+          rmdir html
 
           mv -v _css/ css/
           mv -v _icons/ icons/
