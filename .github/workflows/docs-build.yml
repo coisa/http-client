@@ -1,4 +1,4 @@
-name: docs-build
+name: "Documentation"
 
 on:
   push:
@@ -11,5 +11,7 @@ jobs:
   build-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Build Docs
+      - name: Docs
         uses: laminas/documentation-theme/github-actions/docs@master
+        with:
+          siteUrl: https://coisa.github.io/http-client/
