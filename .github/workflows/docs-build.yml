@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Docs
         uses: laminas/documentation-theme/github-actions/docs@master
+        env:
+          GITHUB_REF: master
         with:
           username: "github-actions[bot]"
           useremail: "41898282+github-actions[bot]@users.noreply.github.com"
