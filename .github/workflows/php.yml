@@ -76,10 +76,6 @@ jobs:
 
       - name: Deploy GitHub Pages
         run: |
-          ls -lash
-          pwd
-          ls -lash /usr/local/src
-
           git config --global init.defaultBranch "$GITHUB_PAGES_BRANCH"
 
           git init
@@ -88,10 +84,10 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          mv html/ docs/
-          mv docs/_css/ docs/css/
-          mv docs/_icons/ docs/icons/
-          mv docs/_js/ docs/js/
+          mv -v html/ docs/
+          mv -v docs/_css/ docs/css/
+          mv -v docs/_icons/ docs/icons/
+          mv -v docs/_js/ docs/js/
 
           sed -i "s|_css|css|g" docs/*.html docs/**/*.html
           sed -i "s|_icons|icons|g" docs/*.html docs/**/*.html
