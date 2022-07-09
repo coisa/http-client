@@ -89,9 +89,9 @@ jobs:
           mv -v docs/_icons/ docs/icons/
           mv -v docs/_js/ docs/js/
 
-          sed -i "s|_css|css|g" docs/*.html docs/**/*.html
-          sed -i "s|_icons|icons|g" docs/*.html docs/**/*.html
-          sed -i "s|_js|js|g" docs/*.html docs/**/*.html
+          find docs -iname "*.html" -exec sed -i "s|_css|css|g" {} \;
+          find docs -iname "*.html" -exec sed -i "s|_icons|icons|g" {} \;
+          find docs -iname "*.html" -exec sed -i "s|_js|js|g" {} \;
 
           git update-ref -d HEAD
           git add docs/
