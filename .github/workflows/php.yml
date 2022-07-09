@@ -29,7 +29,7 @@ jobs:
           IMAGE: ghcr.io/${{ github.repository }}:${{ matrix.php-version }}-${{ github.ref_name }}
         run: |
           docker pull $IMAGE || :
-          docker build --pull --cache-from="$IMAGE" --build-arg PHP_VERSION=${{ matrix.php-version }} --tag $IMAGE
+          docker build --pull --cache-from="$IMAGE" --build-arg PHP_VERSION=${{ matrix.php-version }} --tag $IMAGE .
           docker push $IMAGE
 
 #      - name: Docker Build & Push
