@@ -2,10 +2,7 @@ name: "Documentation"
 
 on:
   push:
-  release:
-    types: [published]
-  repository_dispatch:
-    types: docs-build
+    branches: [master]
 
 jobs:
   build-deploy:
