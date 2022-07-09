@@ -1,5 +1,5 @@
 SHELL := sh
-.DEFAULT_GOAL := test
+.DEFAULT_GOAL := tests
 
 export UID=`id -u`
 export GID=`id -g`
