@@ -1,0 +1,30 @@
+grumphp:
+  stop_on_failure: true
+  parallel:
+    enabled: true
+    max_workers: 32
+  fixer:
+    enabled: true
+    fix_by_default: false
+  tasks:
+    composer_require_checker: ~
+    git_branch_name:
+      blacklist:
+        - "main"
+        - "master"
+    git_blacklist: ~
+    git_commit_message: ~
+    jsonlint:
+      detect_key_conflicts: true
+    phpcsfixer2:
+      config: .php-cs-fixer.dist.php
+    phplint: ~
+    phpstan: ~
+    phpunit: ~
+    phpversion: ~
+    securitychecker_roave: ~
+    xmllint:
+      triggered_by:
+        - xml
+        - xml.dist
+    yamllint: ~

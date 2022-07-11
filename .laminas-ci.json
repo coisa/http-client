@@ -11,6 +11,12 @@
             "job": {
                 "command": "composer run-script analyse"
             }
+        },
+        {
+            "name": "GrumPHP",
+            "job": {
+                "command": "./vendor/bin/grumphp run"
+            }
         }
     ]
 }
