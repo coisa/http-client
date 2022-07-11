@@ -20,4 +20,4 @@ $paths = [
 
 $header = file_get_contents(__DIR__ . '/.docheader');
 
-return CoiSA\PhpCsFixer\PhpCsFixer::create($paths, $header);
+return CoiSA\PhpCsFixer\PhpCsFixer::create($paths, (string) $header);

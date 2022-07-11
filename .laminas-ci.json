@@ -1,0 +1,22 @@
+{
+    "additional_checks": [
+        {
+            "name": "Parallel Lint",
+            "job": {
+                "command": "composer run-script lint"
+            }
+        },
+        {
+            "name": "PHPStan",
+            "job": {
+                "command": "composer run-script analyse"
+            }
+        },
+        {
+            "name": "GrumPHP",
+            "job": {
+                "command": "./vendor/bin/grumphp run"
+            }
+        }
+    ]
+}
