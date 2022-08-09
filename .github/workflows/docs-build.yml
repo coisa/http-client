@@ -1,0 +1,13 @@
+name: "Documentation"
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+
+jobs:
+  laminas-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Docs
+        uses: laminas/documentation-theme/github-actions/docs@master
