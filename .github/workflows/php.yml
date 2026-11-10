@@ -4,73 +4,141 @@ env:
 on:
   push:
     branches-ignore:
-      - $GITHUB_PAGES_BRANCH
+      - coverage-report
 jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      image-tag-suffix: ${{ steps.image-tag.outputs.suffix }}
+    steps:
+      - name: Derive a Docker tag suffix
+        id: image-tag
+        env:
+          LC_ALL: C
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          # Reserve four characters for the PHP version prefix and a namespace for hashed refs.
+          if [[ "$REF_NAME" =~ ^[A-Za-z0-9_.-]{1,124}$ && "$REF_NAME" != ref-hash-* ]]; then
+            suffix="$REF_NAME"
+          else
+            digest=$(printf '%s' "$REF_NAME" | sha256sum)
+            suffix="ref-hash-${digest%% *}"
+          fi
+          printf 'suffix=%s\n' "$suffix" >> "$GITHUB_OUTPUT"
+
   build:
+    needs: prepare
     strategy:
       matrix:
         php-version: [ '7.4', '8.0', '8.1' ]
 
     runs-on: ubuntu-latest
+    env:
+      IMAGE: ghcr.io/${{ github.repository }}:${{ matrix.php-version }}-${{ needs.prepare.outputs.image-tag-suffix }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - name: Login to GitHub Container Registry
+        if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
         uses: docker/login-action@v4.8.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Docker Build & Push
-        env:
-          IMAGE: ghcr.io/${{ github.repository }}:${{ matrix.php-version }}-${{ github.ref_name }}
+      - name: Pull default branch build cache
+        if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
         run: |
-          docker pull $IMAGE || :
-          docker build --pull --cache-from="$IMAGE" --build-arg PHP_VERSION=${{ matrix.php-version }} --tag $IMAGE .
-          docker push $IMAGE
+          docker pull "$IMAGE" || :
+
+      - name: Build Docker image
+        run: docker build --pull --cache-from="$IMAGE" --build-arg PHP_VERSION=${{ matrix.php-version }} --tag "$IMAGE" .
+
+      - name: Publish default branch image
+        if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        run: docker push "$IMAGE"
+
+      - name: Save the image for analysis and tests
+        shell: bash
+        run: |
+          docker save "$IMAGE" | gzip > "$RUNNER_TEMP/http-client-image.tar.gz"
+
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: http-client-image-${{ matrix.php-version }}
+          path: ${{ runner.temp }}/http-client-image.tar.gz
+          compression-level: 0
+          if-no-files-found: error
+          overwrite: true
 
   analyse:
-    needs: build
+    needs: [prepare, build]
 
     strategy:
       matrix:
         php-version: [ '7.4', '8.0', '8.1' ]
 
     runs-on: ubuntu-latest
-    container: ghcr.io/${{ github.repository }}:${{ matrix.php-version }}-${{ github.ref_name }}
+    env:
+      IMAGE: ghcr.io/${{ github.repository }}:${{ matrix.php-version }}-${{ needs.prepare.outputs.image-tag-suffix }}
 
     steps:
+      - name: Download image artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: http-client-image-${{ matrix.php-version }}
+          path: ${{ runner.temp }}
+
+      - name: Load Docker image
+        run: docker load --input "$RUNNER_TEMP/http-client-image.tar.gz"
+
       - name: PHPStan
-        run: composer --working-dir=/usr/local/src run-script analyse
+        run: docker run --rm --pull=never "$IMAGE" --working-dir=/usr/local/src run-script analyse
 
       - name: PHP Lint
-        run: composer --working-dir=/usr/local/src run-script lint
+        run: docker run --rm --pull=never "$IMAGE" --working-dir=/usr/local/src run-script lint
 
   tests:
-    needs: build
+    needs: [prepare, build]
 
     strategy:
       matrix:
         php-version: ['7.4', '8.0', '8.1']
 
     runs-on: ubuntu-latest
-    container: ghcr.io/${{ github.repository }}:${{ matrix.php-version }}-${{ github.ref_name }}
+    env:
+      IMAGE: ghcr.io/${{ github.repository }}:${{ matrix.php-version }}-${{ needs.prepare.outputs.image-tag-suffix }}
 
     steps:
+      - name: Download image artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: http-client-image-${{ matrix.php-version }}
+          path: ${{ runner.temp }}
+
+      - name: Load Docker image
+        run: docker load --input "$RUNNER_TEMP/http-client-image.tar.gz"
+
       - name: PHPUnit
-        run: composer --working-dir=/usr/local/src run-script test
+        run: |
+          mkdir -p "$RUNNER_TEMP/coverage"
+          docker run --rm --pull=never --volume "$RUNNER_TEMP/coverage:/usr/local/src/coverage" "$IMAGE" --working-dir=/usr/local/src run-script test
 
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v7
         with:
-          name: coverage-report
-          path: /usr/local/src/coverage
+          name: coverage-report-${{ matrix.php-version }}
+          path: ${{ runner.temp }}/coverage
+          overwrite: true
 
   deploy:
     needs: tests
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
 
     runs-on: ubuntu-latest
 
@@ -81,14 +149,14 @@ jobs:
       - name: Download Coverage Report
         uses: actions/download-artifact@v8
         with:
-          name: coverage-report
+          name: coverage-report-8.1
 
       - name: Deploy GitHub Pages
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git checkout --orphan $GITHUB_PAGES_BRANCH
+          git checkout --orphan "$GITHUB_PAGES_BRANCH"
           git rm -rf .
 
           mv html/* .
