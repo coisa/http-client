@@ -10,7 +10,7 @@ RUN apk add --update $PHPIZE_DEPS \
 WORKDIR /usr/local/src
 
 COPY composer.json .
-RUN composer install --no-interaction --no-progress
+RUN composer install --no-interaction --no-progress --no-plugins --no-scripts
 
 COPY . .
 

@@ -56,7 +56,14 @@ jobs:
           docker pull "$IMAGE" || :
 
       - name: Build Docker image
-        run: docker build --pull --cache-from="$IMAGE" --build-arg PHP_VERSION=${{ matrix.php-version }} --tag "$IMAGE" .
+        env:
+          USE_REGISTRY_CACHE: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
+        run: |
+          cache_args=()
+          if [[ "$USE_REGISTRY_CACHE" == true ]]; then
+            cache_args+=(--cache-from="$IMAGE")
+          fi
+          docker build --pull "${cache_args[@]}" --build-arg PHP_VERSION=${{ matrix.php-version }} --tag "$IMAGE" .
 
       - name: Publish default branch image
         if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
