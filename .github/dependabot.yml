@@ -15,6 +15,9 @@ updates:
         dependency-type: development
         patterns:
           - "*"
+    labels:
+      - dependencies
+      - composer
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -24,6 +27,9 @@ updates:
       github-actions:
         patterns:
           - "*"
+    labels:
+      - dependencies
+      - github-actions
   - package-ecosystem: docker
     directory: /
     schedule:
@@ -36,6 +42,9 @@ updates:
       - dependency-name: php
         update-types:
           - version-update:semver-major
+    labels:
+      - dependencies
+      - docker
   - package-ecosystem: docker-compose
     directory: /
     schedule:
@@ -44,3 +53,6 @@ updates:
       compose-images:
         patterns:
           - "*"
+    labels:
+      - dependencies
+      - docker
